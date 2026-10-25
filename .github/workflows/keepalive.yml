@@ -18,5 +18,7 @@ jobs:
     steps:
       - name: touch the worker
         run: |
-          curl -s -m 30 -o /dev/null -w "http %{http_code} за %{time_total}s\n" \
-            https://pridefamlog-worker.onrender.com/ || echo "пробуждение не ответило, следующий заход через 5 минут"
+          # -f: запуск зелёный только если воркер ответил 2xx. Ошибка соединения или
+          # 5xx красит прогон — по нему и видно, что будильник сломался.
+          curl -sf -m 30 -o /dev/null -w "http %{http_code} за %{time_total}s\n" \
+            https://pridefamlog-worker.onrender.com/
