@@ -1,0 +1,24 @@
+name: keep-schedules-alive
+
+# GitHub выключает расписания, если в репозиторий 60 дней не приходит ни одного коммита.
+# Раз в месяц делаем пустой коммит, чтобы будильник не погас молча.
+
+on:
+  schedule:
+    - cron: '0 4 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: empty commit
+        run: |
+          git -c user.name=keepalive -c user.email=keepalive@users.noreply.github.com \
+            commit --allow-empty -m "heartbeat: держим расписание включённым"
+          git push

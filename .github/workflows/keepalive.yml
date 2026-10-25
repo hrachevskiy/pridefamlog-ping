@@ -1,0 +1,20 @@
+name: keepalive
+
+# Render Free усыпляет сервис, если на него 15 минут никто не ходит. Спящий воркер
+# не опрашивает Telegram, и /info висел бы до пробуждения, поэтому раз в 5 минут
+# просто трогаем health-адрес.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: touch the worker
+        run: |
+          curl -s -m 30 -o /dev/null -w "http %{http_code} за %{time_total}s\n" \
+            https://pridefamlog-worker.onrender.com/ || echo "пробуждение не ответило, следующий заход через 5 минут"
